@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const SECRET_KEY = process.env.JWT
 
+const bcrypt = require('bcrypt')
+
 const Sequelize = require('sequelize');
 const { STRING } = Sequelize;
 const config = {
@@ -41,11 +43,10 @@ User.byToken = async(token)=> {
 User.authenticate = async({ username, password })=> {
   const user = await User.findOne({
     where: {
-      username,
-      password
+      username
     }
   });
-  if(user){
+  if(user && await bcrypt.compare(password, user.password)){
     const userId = user.id
     const token = jwt.sign({userId}, SECRET_KEY);
     return token
@@ -54,6 +55,12 @@ User.authenticate = async({ username, password })=> {
   error.status = 401;
   throw error;
 };
+
+User.beforeCreate(async(user)=>{
+  if(user.changed('password')){
+    user.password = await bcrypt.hash(user.password, 3);
+  }
+})
 
 const syncAndSeed = async()=> {
   await conn.sync({ force: true });
