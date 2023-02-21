@@ -5,6 +5,9 @@ const app = express();
 const { models: { User }} = require('./db');
 const path = require('path');
 
+// This will initialize our environment variables for use in our app. You can now call your secret variable from your code with process.env.JWT
+require('dotenv').config()
+
 // middleware
 app.use(express.json());
 

@@ -1,5 +1,9 @@
 // The following code contains the Sequelize data models and database seeding code:
 
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
+const SECRET_KEY = process.env.JWT
+
 const Sequelize = require('sequelize');
 const { STRING } = Sequelize;
 const config = {
@@ -18,7 +22,12 @@ const User = conn.define('user', {
 
 User.byToken = async(token)=> {
   try {
-    const user = await User.findByPk(token);
+    console.log('byToken')
+    console.log(token)
+
+    const {userId} = jwt.verify(token, SECRET_KEY)
+    console.log(userId)
+    const user = await User.findByPk(userId);
     if(user){
       return user;
     }
@@ -34,14 +43,19 @@ User.byToken = async(token)=> {
 };
 
 User.authenticate = async({ username, password })=> {
+  console.log('authenticate')
   const user = await User.findOne({
     where: {
       username,
       password
     }
   });
+  console.log(user.id)
   if(user){
-    return user.id;
+    const userId = user.id
+    const token = jwt.sign({userId}, SECRET_KEY);
+    console.log(token)
+    return token
   }
   const error = Error('bad credentials');
   error.status = 401;
