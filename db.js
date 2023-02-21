@@ -22,11 +22,7 @@ const User = conn.define('user', {
 
 User.byToken = async(token)=> {
   try {
-    console.log('byToken')
-    console.log(token)
-
     const {userId} = jwt.verify(token, SECRET_KEY)
-    console.log(userId)
     const user = await User.findByPk(userId);
     if(user){
       return user;
@@ -43,18 +39,15 @@ User.byToken = async(token)=> {
 };
 
 User.authenticate = async({ username, password })=> {
-  console.log('authenticate')
   const user = await User.findOne({
     where: {
       username,
       password
     }
   });
-  console.log(user.id)
   if(user){
     const userId = user.id
     const token = jwt.sign({userId}, SECRET_KEY);
-    console.log(token)
     return token
   }
   const error = Error('bad credentials');
