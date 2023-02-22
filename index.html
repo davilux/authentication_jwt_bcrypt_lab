@@ -37,8 +37,12 @@
         const [notes, setNotes] = React.useState([])
 
         const fetchNotes = async (userId) => {
-          const { data } = await axios.get(`/api/users/${userId}/notes`)
-          setNotes(data)
+          const token = window.localStorage.getItem('token');
+          if (token) {
+            const { data } = await axios.get(`/api/users/${userId}/notes`, { headers: { authorization: token }})
+
+            setNotes(data)
+          }
         }
 
         const attemptTokenLogin = async () => {

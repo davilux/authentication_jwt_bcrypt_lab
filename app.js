@@ -34,11 +34,14 @@ app.get('/api/auth', async(req, res, next)=> {
 
 app.get('/api/users/:id/notes', async(req, res, next)=> {
   try {
-    res.send( await Note.findAll({
-      where : {
-        userId : req.params.id
-      }
-    }));
+    const user = await User.byToken(req.headers.authorization)
+    if(user){
+      res.send( await Note.findAll({
+        where : {
+          userId : user.id
+        }
+      }));
+    }
   }
   catch(ex){
     next(ex);
