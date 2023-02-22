@@ -4,20 +4,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script
-      crossorigin
-      src="https://unpkg.com/react@18/umd/react.development.js"
-    ></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
-    ></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js" ></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
-      integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js" integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ==" crossorigin="anonymous" ></script>
   </head>
   <body>
     <div id="root"></div>
@@ -44,6 +34,12 @@
 
       const App = () => {
         const [auth, setAuth] = React.useState({});
+        const [notes, setNotes] = React.useState([])
+
+        const fetchNotes = async (userId) => {
+          const { data } = await axios.get(`/api/users/${userId}/notes`)
+          setNotes(data)
+        }
 
         const attemptTokenLogin = async () => {
           const token = window.localStorage.getItem('token');
@@ -54,6 +50,10 @@
               },
             });
             setAuth(auth);
+
+            if(auth){
+              fetchNotes(auth.id)
+            }
           }
         };
         React.useEffect(() => {
@@ -78,6 +78,13 @@
           <div>
             Welcome {auth.username}!
             <button onClick={logout}>Logout</button>
+
+            <ul>
+              {notes.map((note, idx)=>
+                  <li key={`${auth.username}_note_${idx}`}>{note.text}</li>
+                )
+              }
+            </ul>
           </div>
         );
       };
